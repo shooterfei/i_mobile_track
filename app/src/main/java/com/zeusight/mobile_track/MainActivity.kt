@@ -12,6 +12,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.permissionx.guolindev.PermissionX
 import com.zeusight.mobile_track.service.LocationService
 import com.zeusight.mobile_track.util.LOG
+import com.zeusight.mobile_track.util.LocationUtil
+import com.zeusight.mobile_track.vo.GyroScopeInfoVO
+import org.json.JSONObject
+import org.json.JSONStringer
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -44,7 +48,8 @@ class MainActivity : AppCompatActivity() {
                 LOG.d("TaskInfo:", "gyroscopeInfo==>%s", msg)
                 when (msg.what) {
                     1 -> {
-                        textView!!.text = msg.obj.toString()
+                        val gyroScopeInfoVO = msg.obj as GyroScopeInfoVO
+                        textView!!.text = gyroScopeInfoVO.airHorn[0].toString()
                     }
                 }
             }

@@ -69,7 +69,7 @@ public class LocationTimerTask extends TimerTask {
 
                        Message msg = Message.obtain();
                         msg.what = 1;
-                        msg.obj = gyroscopeInfo.getAcceleration()[0];
+                        msg.obj = gyroscopeInfo;
                         mHandler.sendMessage(msg);
 //                        LOG.d("TaskInfo:", "gyroscopeInfo==>%s", gyroscopeInfo);
                     } catch (JSONException e) {
