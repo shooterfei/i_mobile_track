@@ -1,21 +1,19 @@
 package com.zeusight.mobile_track
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.ActivityManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.os.*
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.permissionx.guolindev.PermissionX
 import com.zeusight.mobile_track.service.LocationService
+import com.zeusight.mobile_track.util.GyroScopeDataHandle
 import com.zeusight.mobile_track.util.LOG
-import com.zeusight.mobile_track.util.LocationUtil
 import com.zeusight.mobile_track.vo.GyroScopeInfoVO
-import org.json.JSONObject
-import org.json.JSONStringer
+import org.ejml.simple.SimpleMatrix
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -42,14 +40,42 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         textView = findViewById<TextView>(R.id.test)
+        val accMatrix = SimpleMatrix(3,1)
+
         handler = object : Handler(Looper.getMainLooper()) {
+            @SuppressLint("SetTextI18n")
             override fun handleMessage(msg: Message) {
                 super.handleMessage(msg)
                 LOG.d("TaskInfo:", "gyroscopeInfo==>%s", msg)
                 when (msg.what) {
                     1 -> {
                         val gyroScopeInfoVO = msg.obj as GyroScopeInfoVO
-                        textView!!.text = gyroScopeInfoVO.airHorn[0].toString()
+//                        accData = matrix_mul(matrix(airHorn, true), acc)
+//                        SimpleMatrix(gyroScopeInfoVO.acceleration)
+                        /*val mult = SimpleMatrix(GyroScopeDataHandle.matrix(gyroScopeInfoVO.airHorn,
+                            true)).mult(
+                            SimpleMatrix{ gyroScopeInfoVO.acceleration })*/
+                        val simpleMatrix =
+                            SimpleMatrix(GyroScopeDataHandle.matrix(gyroScopeInfoVO.airHorn, true))
+                        accMatrix.set(0,0, gyroScopeInfoVO.acceleration[0].toDouble())
+                        accMatrix.set(1,0, gyroScopeInfoVO.acceleration[1].toDouble())
+                        accMatrix.set(2,0, gyroScopeInfoVO.acceleration[2].toDouble())
+                        val mult = simpleMatrix.mult(accMatrix)
+                        LOG.d("mult:", mult.toString())
+                        textView!!.text = """
+                            |原始数据:
+                            |
+                            |方向:    ${gyroScopeInfoVO.direction}
+                            |倾斜信息:  ${gyroScopeInfoVO.gradient}
+                            |旋转信息:  ${gyroScopeInfoVO.rotation}
+                            |航向角:   ${gyroScopeInfoVO.airHorn.contentToString()}
+                            |重力加速度:  ${gyroScopeInfoVO.gravitys.contentToString()}
+                            |加速度:   ${gyroScopeInfoVO.acceleration.contentToString()}
+                            |角速度:   ${gyroScopeInfoVO.angularVelocity.contentToString()}
+                            |
+                            |处理后数据:
+                            |加速度:   x: ${mult.get(0)}, y: ${mult.get(1)}
+                        """.trimMargin()
                     }
                 }
             }

@@ -4,6 +4,8 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import org.ejml.simple.SimpleMatrix;
+
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -159,8 +161,9 @@ public class GyroScopeDataHandle {
      * |g    h    i|
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public float[][] matrix_inv(float[][] m) {
-        float a = m[0][0];
+    public static SimpleMatrix matrix_inv(float[][] m) {
+
+       /* float a = m[0][0];
         float b = m[0][1];
         float c = m[0][2];
         float d = m[1][0];
@@ -170,19 +173,23 @@ public class GyroScopeDataHandle {
         float h = m[2][1];
         float i = m[2][2];
 
+
         // 余子式矩阵行列式
         float rc = a * (e * i - h * f) - b * (d * i - g * f) + c * (d * h - g * e);
 
         float[] row_0 = {e * i - h * f, h * c - b * i, b * f - c * e};
-        float[] row_1 = { f * g - i * d, i * a - c * g, c * d - a * f };
-        float[] row_2 = { d * h - g * e, g * b - a * h, a * e - b * d };
-        float[][] res = { row_0, row_1, row_2 };
+        float[] row_1 = {f * g - i * d, i * a - c * g, c * d - a * f};
+        float[] row_2 = {d * h - g * e, g * b - a * h, a * e - b * d};
+        float[][] res = {row_0, row_1, row_2};*/
         /*        return Arrays.stream(res)
                 .map(item -> Arrays.stream(item).map(ite -> ite/rc))
                 .toArray(float[][]::new);*/
 //        Arrays.stream(res).flatMap(rows -> Arrays.stream(rows))
-        return res;
+//        int[][] ints = Arrays.stream(data).map(integers -> Arrays.stream(integers).mapToInt(value -> value/2).toArray()).toArray(int[][]::new);
 
+//        return Arrays.stream(res).map(row -> Arrays.stream(row).map(row).map());
+
+        return new SimpleMatrix(m).invert();
         /*return res.map(item = > {
         return item.map(i = > {
         return i / rc
@@ -190,12 +197,51 @@ public class GyroScopeDataHandle {
       })*/
     }
 
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public static void main(String[] args) {
-        Integer[][] data = {{1,2},{3,4},{5,6}};
-        Float[][] floats = Arrays.stream(data).flatMap(row -> Arrays.stream(row)).
-                toArray(size -> new Float[size][2]);
-        System.out.println(floats);
+    /**
+     * 欧拉旋转计算
+     * @param angArr 三轴角度
+     * @return
+     */
+    public static SimpleMatrix eularRotation(float[] angArr) {
+        return  new SimpleMatrix(3,3);
     }
+
+    public static double[][] matrix(float[] angArr, boolean inverse) {
+
+        // y = yaw 绕z轴 | p = pitch 绕x轴｜ r = roll 绕y轴
+        float y = angArr[0], p = angArr[1], r = angArr[2];
+        if (inverse) {
+            y = -y;
+            p = -p;
+            r = -r;
+        }
+      /*
+              [                       cos(p)*cos(y),                       -cos(p)*sin(y),         sin(p)]
+              [cos(r)*sin(y) + cos(y)*sin(p)*sin(r), cos(r)*cos(y) - sin(p)*sin(r)*sin(y), -cos(p)*sin(r)]
+              [sin(r)*sin(y) - cos(r)*cos(y)*sin(p), cos(y)*sin(r) + cos(r)*sin(p)*sin(y),  cos(p)*cos(r)]
+      */
+      /*
+            [                       cos(r)*cos(y),                       -cos(r)*sin(y),         sin(r)]
+      [cos(p)*sin(y) + cos(y)*sin(p)*sin(r), cos(p)*cos(y) - sin(p)*sin(r)*sin(y), -cos(r)*sin(p)]
+      [sin(p)*sin(y) - cos(p)*cos(y)*sin(r), cos(y)*sin(p) + cos(p)*sin(r)*sin(y),  cos(p)*cos(r)]
+      */
+
+        double[] row_0 = {
+                Math.cos(r) * Math.cos(y),
+                Math.cos(r) * Math.sin(y),
+                -Math.sin(r)
+        };
+        double[] row_1 = {
+                Math.cos(y) * Math.sin(p) * Math.sin(r) - Math.cos(p) * Math.sin(y),
+                Math.cos(p) * Math.cos(y) + Math.sin(r) * Math.sin(p) * Math.sin(y),
+                Math.cos(r) * Math.sin(p)
+        };
+        double[] row_2 = {
+                Math.sin(p) * Math.sin(y) + Math.cos(p) * Math.cos(y) * Math.sin(r),
+                Math.cos(p) * Math.sin(r) * Math.sin(y) - Math.cos(y) * Math.sin(p),
+                Math.cos(p) * Math.cos(r)
+        };
+        return new double[][]{row_0, row_1, row_2};
+    }
+
 }
