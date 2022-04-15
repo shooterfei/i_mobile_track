@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId = "com.zeusight.mobile_track"
-        minSdk = 21
+        minSdk = 26
         targetSdk = 32
         versionCode = 1
         versionName = "1.0"
@@ -42,7 +42,12 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.3")
     implementation("com.guolindev.permissionx:permissionx:1.6.1")
     implementation("org.ejml:ejml-all:0.41")
+    implementation("com.google.code.gson:gson:2.8.7")
+    implementation("com.google.auto.value:auto-value:1.9")
+    implementation("com.google.auto.value:auto-value-annotations:1.9")
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
     testImplementation("junit:junit:4.13.2")
+
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
 }

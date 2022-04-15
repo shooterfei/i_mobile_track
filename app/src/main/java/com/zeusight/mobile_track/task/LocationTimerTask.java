@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import com.zeusight.mobile_track.R;
 import com.zeusight.mobile_track.data.location.CommonLocationSensorsData;
 import com.zeusight.mobile_track.saveuser.User;
 import com.zeusight.mobile_track.service.LocationService;
+import com.zeusight.mobile_track.util.KafkaProducerProperties;
 import com.zeusight.mobile_track.util.LOG;
 import com.zeusight.mobile_track.util.LocationUtil;
 import com.zeusight.mobile_track.util.SettingUtils;
@@ -37,6 +39,7 @@ public class LocationTimerTask extends TimerTask {
         this.context = context;
         mHandler = MainActivity.Companion.getHandler();
     }
+    private int count = 0;
 
     @Override
     public void run() {
@@ -71,6 +74,8 @@ public class LocationTimerTask extends TimerTask {
                         msg.what = 1;
                         msg.obj = gyroscopeInfo;
                         mHandler.sendMessage(msg);
+                        KafkaProducerProperties.sendMSG(msg);
+//                        Log.d("Test==>", );
 //                        LOG.d("TaskInfo:", "gyroscopeInfo==>%s", gyroscopeInfo);
                     } catch (JSONException e) {
                         e.printStackTrace();

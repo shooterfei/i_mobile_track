@@ -5,13 +5,15 @@ import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
-import android.os.*
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.permissionx.guolindev.PermissionX
 import com.zeusight.mobile_track.service.LocationService
 import com.zeusight.mobile_track.util.GyroScopeDataHandle
-import com.zeusight.mobile_track.util.LOG
 import com.zeusight.mobile_track.vo.GyroScopeInfoVO
 import org.ejml.simple.SimpleMatrix
 
@@ -46,7 +48,7 @@ class MainActivity : AppCompatActivity() {
             @SuppressLint("SetTextI18n")
             override fun handleMessage(msg: Message) {
                 super.handleMessage(msg)
-                LOG.d("TaskInfo:", "gyroscopeInfo==>%s", msg)
+//                LOG.d("TaskInfo:", "gyroscopeInfo==>%s", msg)
                 when (msg.what) {
                     1 -> {
                         val gyroScopeInfoVO = msg.obj as GyroScopeInfoVO
@@ -61,7 +63,8 @@ class MainActivity : AppCompatActivity() {
                         accMatrix.set(1,0, gyroScopeInfoVO.acceleration[1].toDouble())
                         accMatrix.set(2,0, gyroScopeInfoVO.acceleration[2].toDouble())
                         val mult = simpleMatrix.mult(accMatrix)
-                        LOG.d("mult:", mult.toString())
+//                        LOG.d("mult:", mult.toString())
+
                         textView!!.text = """
                             |原始数据:
                             |
